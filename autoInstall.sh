@@ -222,6 +222,7 @@ aptLib() {
     sudo apt-get -yqq install autopoint gettext
     sudo apt-get -yqq install libcurl4-openssl-dev libcurl4
     sudo apt-get -yqq install git
+    sudo apt-get -yqq install help2man texinfo
 }
 
 # Creat logs and backupfiles
@@ -432,8 +433,6 @@ getWRF() {
         mv $HOME/.bashrc.autoInstall.bak.temp $HOME/.bashrc.autoInstall.bak
     fi
     export WRFIO_NCD_LARGE_FILE_SUPPORT=1
-    export WRF_CHEM=$WRF_CHEM_SETTING
-    export WRF_KPP=$WRF_KPP_SETTING
     flag=0
     for file in $(ls $HOME/$WRF_VERSION/main/*.exe 2>/dev/null)
     do
@@ -450,6 +449,11 @@ getWRF() {
             fi
         fi
         cd $HOME/$1
+        if [ $WRF_CHEM_SETTING -eq "1" ];then
+            export WRF_CHEM=$WRF_CHEM_SETTING
+            export WRF_KPP=$WRF_KPP_SETTING
+            sed -i 's/CC_FLAGS="-O"/CC_FLAGS="-g"/g' chem/KPP/configure_kpp
+        fi
         echo " ============================================================== "
         echo -e "\nClean\n"
         ./clean -a &>/dev/null
@@ -650,6 +654,7 @@ checkFinishWRF() {
         echo -e "\nInstall ${red}failed${plain} please check errors\n"
         cp $HOME/.bashrc.autoInstall.bak $HOME/.bashrc
         rm $HOME/.bashrc.autoInstall.bak
+        rm $HOME/autoInstall.sh
     fi
 }
 
@@ -697,7 +702,7 @@ getInfo
 getDir
 getOpenmp
 #getTest
-#getWRFChemWill
+getWRFChemWill
 setSources
 checkInfo
 aptLib
